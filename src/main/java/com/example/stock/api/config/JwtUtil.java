@@ -21,13 +21,13 @@ import java.util.stream.Collectors;
 @Component
 public class JwtUtil {
 
-    private String jwtSecret;
     private int expiresAt;
+    private final Key key;
 
     @Autowired
     public JwtUtil(@Value("${jwt.secret}")String jwtSecret, @Value("${jwt.expiresAt}") int expiresAt) {
-        this.jwtSecret = jwtSecret;
         this.expiresAt = expiresAt;
+        this.key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
 
     public String generateToken(User user){
@@ -36,7 +36,6 @@ public class JwtUtil {
                 .map(Role::getName)
                 .collect(Collectors.toList());
 
-        Key key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
         return Jwts.builder()
                 .setSubject(user.getUsername())
                 .claim("roles", roles)
@@ -48,7 +47,7 @@ public class JwtUtil {
 
     public Claims getAllClaimsFromToken(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(jwtSecret)
+                .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
