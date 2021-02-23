@@ -1,9 +1,9 @@
 package com.example.stock.api.exception;
 
+import com.example.stock.api.dto.Error;
+import com.example.stock.api.dto.ErrorResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.interswitchng.base.exception.NotFoundException;
-import com.interswitchng.base.model.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.reactive.error.ErrorWebExceptionHandler;
 import org.springframework.context.annotation.Configuration;
@@ -17,7 +17,6 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.support.WebExchangeBindException;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.server.MethodNotAllowedException;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.UnsupportedMediaTypeStatusException;
@@ -39,11 +38,11 @@ public class CustomExceptionResolver implements ErrorWebExceptionHandler {
     public Mono<Void> handle(ServerWebExchange serverWebExchange, Throwable throwable) {
 
         DataBufferFactory bufferFactory = serverWebExchange.getResponse().bufferFactory();
-        Response response = new Response("400", "A client error has occurred, please check the error(s) below.");
+        ErrorResponse response = new ErrorResponse("400", "A client error has occurred, please check the error(s) below.");
         DataBuffer dataBuffer;
         if (throwable instanceof MethodArgumentNotValidException || throwable instanceof WebExchangeBindException) {
             serverWebExchange.getResponse().setStatusCode(HttpStatus.BAD_REQUEST);
-            response = new Response("400", "Validation failed, check the errors.");
+            response = new ErrorResponse("400", "Validation failed, check the errors.");
             response.setLogId(serverWebExchange.getRequest().getId());
             List<FieldError> fieldErrors = throwable instanceof MethodArgumentNotValidException ?
                     ((MethodArgumentNotValidException)throwable).getBindingResult().getFieldErrors() :
@@ -69,7 +68,7 @@ public class CustomExceptionResolver implements ErrorWebExceptionHandler {
             serverWebExchange.getResponse().setStatusCode(HttpStatus.CONFLICT);
             response.setCode("409");
         }
-        else if (throwable instanceof NotFoundException || throwable instanceof WebClientResponseException.NotFound || throwable instanceof HttpClientErrorException.NotFound) {
+        else if (throwable instanceof NotFoundException || throwable instanceof HttpClientErrorException.NotFound) {
             serverWebExchange.getResponse().setStatusCode(HttpStatus.NOT_FOUND);
             response.setCode("404");
         }
