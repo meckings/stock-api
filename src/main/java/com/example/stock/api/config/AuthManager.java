@@ -17,7 +17,7 @@ public class AuthManager implements ReactiveAuthenticationManager {
     @Override
     public Mono<Authentication> authenticate(Authentication authentication) {
         String authToken = authentication.getCredentials().toString();
-        if (!jwtUtil.isTokenExpired(authToken)) {
+        if (jwtUtil.isTokenExpired(authToken)) {
             throw new UnauthorizedException("Your token has expired!");
         }
         return Mono.just(new UsernamePasswordAuthenticationToken(jwtUtil.getSubject(authToken), null, jwtUtil.getRoles(authToken)));

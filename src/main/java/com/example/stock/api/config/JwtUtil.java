@@ -12,6 +12,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -36,11 +38,12 @@ public class JwtUtil {
                 .map(Role::getName)
                 .collect(Collectors.toList());
 
+        Instant now = Instant.now();
         return Jwts.builder()
                 .setSubject(user.getUsername())
                 .claim("roles", roles)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis()+(expiresAt*1000)))
+                .setIssuedAt(Date.from(now))
+                .setExpiration(Date.from(now.plus(expiresAt, ChronoUnit.DAYS)))
                 .signWith(key)
                 .compact();
     }
