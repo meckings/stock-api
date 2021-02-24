@@ -1,6 +1,5 @@
 package com.example.stock.api.config;
 
-import com.example.stock.api.exception.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -34,9 +33,11 @@ public class SecurityContextRepository implements ServerSecurityContextRepositor
         if(authHeader!=null && (authHeader.startsWith(TOKEN_PREFIX) || authHeader.startsWith(TOKEN_PREFIX_SMALL) || authHeader.startsWith(TOKEN_PREFIX_BIG))){
             String authToken = authHeader.substring(7);
             Authentication auth = new UsernamePasswordAuthenticationToken(authToken, authToken);
-            return this.authenticationManager.authenticate(auth).map(SecurityContextImpl::new);
+            return this.authenticationManager
+                    .authenticate(auth)
+                    .map(SecurityContextImpl::new);
         } else {
-            throw new BadRequestException("The header must contain the Authorization header!");
+            return Mono.empty();
         }
     }
 

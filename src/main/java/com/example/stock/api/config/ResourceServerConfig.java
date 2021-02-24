@@ -17,10 +17,12 @@ import org.springframework.web.reactive.config.WebFluxConfigurerComposite;
 public class ResourceServerConfig {
 
     private AuthManager authManager;
+    private SecurityContextRepository securityContextRepository;
 
     @Autowired
-    public ResourceServerConfig(AuthManager authManager) {
+    public ResourceServerConfig(AuthManager authManager, SecurityContextRepository securityContextRepository) {
         this.authManager = authManager;
+        this.securityContextRepository = securityContextRepository;
     }
 
     @Bean
@@ -31,6 +33,7 @@ public class ResourceServerConfig {
                 .anyExchange().authenticated()
                 .and()
                 .authenticationManager(authManager)
+                .securityContextRepository(securityContextRepository)
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .build();
     }
