@@ -9,7 +9,11 @@ import com.example.stock.api.repository.StockRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class StockService {
@@ -25,6 +29,15 @@ public class StockService {
 
     public Mono<StockQuote> getQuote(String symbol) {
         return stockClient.getQuote(symbol, StockQuote.class);
+    }
+
+    public Mono<List<StockDto>> getStocks() {
+        return ReactiveSecurityContextHolder.getContext()
+                .flatMap(securityContext ->
+                        stockRepository
+                                .findAllByUsername((String)securityContext.getAuthentication().getPrincipal())
+                                .collect(Collectors.mapping(StockDto::new, Collectors.toList()))
+                );
     }
 
     public Mono<StockDto> saveStock(StockDto stockDto) {

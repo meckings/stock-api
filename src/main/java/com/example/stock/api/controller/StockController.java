@@ -10,6 +10,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 /**
  * The Stock controller.
  */
@@ -38,13 +40,18 @@ public class StockController {
     @Operation(description = "Get quote for a stock symbol.")
     @GetMapping
     public Mono<StockQuote> getQuote(@RequestParam String symbol){
-        return Mono.create(monoSink -> stockService.getQuote(symbol)
-                    .onErrorMap(error->{
-                        monoSink.error(error);
-                        return error;
-                    })
-                    .subscribe(monoSink::success)
-        );
+        return stockService.getQuote(symbol);
+    }
+
+    /**
+     * Get all the stocks bought by a logged in user
+     *
+     * @return the Mono
+     */
+    @Operation(description = "Get all the stocks bought by a logged in user.")
+    @GetMapping("/me")
+    public Mono<List<StockDto>> getStock(){
+        return stockService.getStocks();
     }
 
     /**
