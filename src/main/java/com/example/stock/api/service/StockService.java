@@ -7,9 +7,9 @@ import com.example.stock.api.exception.BadRequestException;
 import com.example.stock.api.model.Stock;
 import com.example.stock.api.repository.StockRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -22,7 +22,7 @@ public class StockService {
     private StockRepository stockRepository;
 
     @Autowired
-    public StockService(StockClient stockClient, StockRepository stockRepository) {
+    public StockService(@Qualifier("iexMockClient") StockClient stockClient, StockRepository stockRepository) {
         this.stockClient = stockClient;
         this.stockRepository = stockRepository;
     }
